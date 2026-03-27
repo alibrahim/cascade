@@ -1,0 +1,21 @@
+{
+  "name": "cascade",
+  "description": "AI-native coordination for multi-service development. Orchestrates cross-cutting changes across microservices with dependency-aware propagation, automatic contract sync, and cross-service verification.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Ahmad Al Ibrahim",
+    "url": "https://github.com/ahmadalibrahim"
+  },
+  "homepage": "https://github.com/ahmadalibrahim/cascade",
+  "repository": "https://github.com/ahmadalibrahim/cascade",
+  "license": "MIT",
+  "keywords": [
+    "microservices",
+    "orchestration",
+    "multi-service",
+    "api-contracts",
+    "cross-service",
+    "coordination",
+    "multi-repo"
+  ]
+}
