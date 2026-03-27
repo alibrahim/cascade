@@ -1,4 +1,4 @@
-# Change List for Testing the Meta-Orchestrator
+# Change List for Testing Cascade
 
 Run these one at a time. Each one tests a different aspect of cross-service coordination.
 Start a new Claude session for each change (or continue in the same one).
@@ -6,8 +6,8 @@ Start a new Claude session for each change (or continue in the same one).
 ## How to Run
 
 ```bash
-cd ~/Projects/claude_code_training/test-platform
-claude "Follow CLAUDE.md. Implement Change N from CHANGES.md."
+cd examples/food-marketplace
+claude "Implement Change N from CHANGES.md"
 ```
 
 ---
