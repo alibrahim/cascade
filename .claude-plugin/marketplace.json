@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "cascade",
+  "description": "AI-native coordination for multi-service development",
+  "owner": {
+    "name": "Ahmad Al Ibrahim"
+  },
+  "plugins": [
+    {
+      "name": "cascade",
+      "description": "Orchestrates cross-cutting changes across microservices with dependency-aware propagation, automatic contract sync, and cross-service verification.",
+      "source": "./plugins/cascade",
+      "category": "development"
+    }
+  ]
+}
