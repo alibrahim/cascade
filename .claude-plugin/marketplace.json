@@ -1,0 +1,5 @@
+{
+  "name": "cascade-local",
+  "description": "Cascade — AI-native coordination for multi-service development",
+  "plugins": ["cascade"]
+}
