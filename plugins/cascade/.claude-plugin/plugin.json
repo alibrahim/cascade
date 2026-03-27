@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "author": {
     "name": "Ahmad Al Ibrahim",
-    "url": "https://github.com/ahmadalibrahim"
+    "url": "https://github.com/alibrahim"
   },
-  "homepage": "https://github.com/ahmadalibrahim/cascade",
-  "repository": "https://github.com/ahmadalibrahim/cascade",
+  "homepage": "https://github.com/alibrahim/cascade",
+  "repository": "https://github.com/alibrahim/cascade",
   "license": "MIT",
   "keywords": [
     "microservices",

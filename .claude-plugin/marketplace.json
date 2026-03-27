@@ -3,7 +3,8 @@
   "name": "cascade",
   "description": "AI-native coordination for multi-service development",
   "owner": {
-    "name": "Ahmad Al Ibrahim"
+    "name": "Ahmad Al Ibrahim",
+    "url": "https://github.com/alibrahim"
   },
   "plugins": [
     {
