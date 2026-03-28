@@ -1,0 +1,256 @@
+# API Contracts — Source of Truth
+# All services must conform to these contracts.
+# Version: 1.0.0
+
+auth-service:
+  base_url: http://localhost:9000
+  endpoints:
+    list_users:
+      method: GET
+      path: /api/v1/users
+      query_params:
+        - name: role
+          type: string
+          required: false
+          enum: [customer, vendor, admin]
+      response:
+        users: array[User]
+        count: integer
+
+    get_user:
+      method: GET
+      path: /api/v1/users/{user_id}
+      response: User
+
+    create_user:
+      method: POST
+      path: /api/v1/users
+      body: {email: string, name: string, role: string}
+      response: User
+
+    validate_user:
+      method: GET
+      path: /api/v1/users/{user_id}/validate
+      response:
+        valid: boolean
+        role: string
+
+  models:
+    User:
+      id: string
+      email: string
+      name: string
+      role: string  # customer, vendor, admin
+      created_at: string
+
+catalog-service:
+  base_url: http://localhost:9001
+  depends_on: [auth-service]
+  endpoints:
+    list_categories:
+      method: GET
+      path: /api/v1/categories
+      response: array[Category]
+
+    list_menu:
+      method: GET
+      path: /api/v1/menu
+      query_params:
+        - name: category_id
+          type: string
+          required: false
+        - name: vendor_id
+          type: string
+          required: false
+        - name: available
+          type: boolean
+          required: false
+      response:
+        items: array[MenuItem]
+        count: integer
+
+    get_menu_item:
+      method: GET
+      path: /api/v1/menu/{item_id}
+      response: MenuItem
+
+    create_menu_item:
+      method: POST
+      path: /api/v1/menu
+      body: {vendor_id: string, category_id: string, name: string, description: string, price: float}
+      response: MenuItem
+
+    search_menu:
+      method: GET
+      path: /api/v1/menu/search
+      query_params:
+        - name: q
+          type: string
+          required: true
+      response:
+        items: array[MenuItem]
+        count: integer
+
+  models:
+    Category:
+      id: string
+      name: string
+      description: string
+    MenuItem:
+      id: string
+      vendor_id: string
+      vendor_name: string
+      category_id: string
+      name: string
+      description: string
+      price: float
+      available: boolean
+
+order-service:
+  base_url: http://localhost:9002
+  depends_on: [auth-service, catalog-service]
+  endpoints:
+    list_orders:
+      method: GET
+      path: /api/v1/orders
+      query_params:
+        - name: customer_id
+          type: string
+          required: false
+        - name: status
+          type: string
+          required: false
+      response:
+        orders: array[Order]
+        count: integer
+
+    get_order:
+      method: GET
+      path: /api/v1/orders/{order_id}
+      response: Order
+
+    create_order:
+      method: POST
+      path: /api/v1/orders
+      body: {customer_id: string, items: array[{menu_item_id: string, quantity: integer}]}
+      response: Order
+
+    update_order_status:
+      method: PATCH
+      path: /api/v1/orders/{order_id}/status
+      body: {status: string}
+      response: Order
+
+    order_stats:
+      method: GET
+      path: /api/v1/orders/stats
+      response:
+        total_orders: integer
+        total_revenue: float
+        orders_by_status: object
+
+  models:
+    OrderItem:
+      menu_item_id: string
+      quantity: integer
+      unit_price: float
+      subtotal: float
+    Order:
+      id: string
+      customer_id: string
+      customer_name: string
+      items: array[OrderItem]
+      total: float
+      status: string  # pending, confirmed, preparing, delivered, cancelled
+      created_at: string
+
+notification-service:
+  base_url: http://localhost:9003
+  depends_on: [auth-service, order-service]
+  endpoints:
+    list_notifications:
+      method: GET
+      path: /api/v1/notifications
+      query_params:
+        - name: user_id
+          type: string
+          required: false
+        - name: type
+          type: string
+          required: false
+        - name: read
+          type: boolean
+          required: false
+      response:
+        notifications: array[Notification]
+        count: integer
+
+    send_notification:
+      method: POST
+      path: /api/v1/notifications/send
+      body: {user_id: string, type: string, order_id: string}
+      response: Notification
+
+    mark_read:
+      method: PATCH
+      path: /api/v1/notifications/{notification_id}/read
+      response: Notification
+
+    unread_count:
+      method: GET
+      path: /api/v1/notifications/unread-count
+      query_params:
+        - name: user_id
+          type: string
+          required: true
+      response:
+        count: integer
+
+  models:
+    Notification:
+      id: string
+      user_id: string
+      type: string  # order_confirmed, order_delivered, order_cancelled, welcome
+      message: string
+      channel: string  # email, sms
+      sent_at: string
+      read: boolean
+
+gateway-api:
+  base_url: http://localhost:9004
+  depends_on: [auth-service, catalog-service, order-service, notification-service]
+  endpoints:
+    dashboard:
+      method: GET
+      path: /api/v1/dashboard
+      response:
+        user_count: integer
+        menu_item_count: integer
+        order_count: integer
+        total_revenue: float
+        unread_notifications: integer
+
+    vendor_summary:
+      method: GET
+      path: /api/v1/vendor/{vendor_id}/summary
+      response:
+        vendor: User
+        menu_items: array[MenuItem]
+        orders: array[Order]
+
+    customer_profile:
+      method: GET
+      path: /api/v1/customer/{customer_id}/profile
+      response:
+        customer: User
+        orders: array[Order]
+        notifications: array[Notification]
+
+dashboard-ui:
+  base_url: http://localhost:9005
+  depends_on: [gateway-api, auth-service, catalog-service]
+  endpoints:
+    home:
+      method: GET
+      path: /
+      description: HTML dashboard with stats, orders, menu items, notifications
