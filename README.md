@@ -6,6 +6,8 @@ Your AI coding agent works great inside one repo. But when a change needs to flo
 
 Cascade fixes that. One orchestrator coordinates changes across all your services with dependency-aware propagation, automatic contract sync, and cross-service verification.
 
+![Cascade Demo](demo.gif)
+
 ```
 You: "Rename role to account_type across all services"
 
