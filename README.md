@@ -100,25 +100,11 @@ Tier 3: [gateway-api, web-ui, sdk]           ← 3 in PARALLEL (depend on tier 2
 
 ## How We Got Here
 
-Cascade emerged from a systematic comparison of three approaches to multi-service coordination:
+Cascade emerged from experimenting with different approaches to multi-service coordination — per-service sessions, centralized orchestration, and agent teams. The meta-orchestrator pattern (one session with full visibility across all services) consistently produced the best results: consistent naming, enforced dependency order, and immediate contract updates.
 
-**Approach A: Contract Guardian** — Each service gets its own Claude session with a sync-checker agent that reads shared contracts before/after work. Decentralized.
+We tested Cascade against a 12-change gauntlet that included breaking field renames, response restructuring, and cross-cutting middleware. It completed all 12 changes with zero stale references in 24 minutes.
 
-**Approach B: Meta-orchestrator** — One Claude session sits above all services with full visibility. Centralized.
-
-**Approach C: Agent Teams** — Claude Code's experimental agent teams feature, where teammates work on different services and communicate via messaging.
-
-We tested all three against a 12-change gauntlet that included breaking field renames, response restructuring, cross-cutting middleware, pagination, and new shared models:
-
-| Approach | Score | Time | Key Issue |
-|----------|-------|------|-----------|
-| **B: Meta-orchestrator (Cascade)** | **24/24** | **24 min** | None |
-| C: Agent Teams | ~17/24 | 35+ min | Coordination overhead burns turns |
-| A: Per-service sessions | ~7/24 | 60+ min | Naming inconsistencies, 4x slower |
-
-**Why the meta-orchestrator wins:** One session = consistent naming across all services. Dependency order enforced naturally. Contracts updated immediately. The verifier catches what self-evaluation misses.
-
-Cascade is the productized version of Approach B, enhanced with planning (from [Superpowers](https://github.com/obra/superpowers)' methodology) and TDD.
+The key insight: **one session that sees everything beats multiple sessions that each see one service.** Consistent naming, dependency awareness, and immediate contract sync come naturally when the orchestrator has full context.
 
 ## Configuration
 

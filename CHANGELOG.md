@@ -16,6 +16,6 @@
 - Demo GIFs: parallel execution + dependency propagation
 
 ### Tested
-- 24/24 on 12-change gauntlet (breaking renames, response restructuring, cross-cutting middleware)
-- Outperformed Agent Teams (17/24) and per-service sessions (7/24)
+- 12/12 changes completed on a gauntlet including breaking renames, response restructuring, and cross-cutting middleware
+- Zero stale references after each change
 - Verified on 3-service and 6-service projects
