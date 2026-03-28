@@ -60,11 +60,24 @@ Cascade is a Claude Code plugin that adds a multi-service orchestration layer. O
                     └─────────────┘
 ```
 
-1. **Plan** — Which services are affected? In what order?
-2. **Implement** — One service at a time, upstream first
-3. **Sync contracts** — After each service, not at the end
+1. **Plan** — Which services are affected? Group them into dependency tiers
+2. **Implement** — Run all services in the same tier **in parallel**, then move to the next tier
+3. **Sync contracts** — After each tier completes, not at the end
 4. **Verify** — Grep for stale refs, check contract consistency, confirm commits
 5. **Fix** — If verification fails, fix and re-verify
+
+### Parallel execution by dependency tier
+
+Cascade doesn't process services one by one. It groups them into tiers based on dependencies and runs each tier in parallel:
+
+```
+Tier 0: [auth-service, payments-service]     ← 2 in PARALLEL (no deps)
+Tier 1: [catalog-service, users-service]     ← 2 in PARALLEL (depend on tier 0)
+Tier 2: [order-service]                      ← waits for tier 1
+Tier 3: [gateway-api, web-ui, sdk]           ← 3 in PARALLEL (depend on tier 2)
+```
+
+4 tiers instead of 8 sequential steps. For independent changes (like adding middleware to all services), ALL services run in parallel — one tier, one pass.
 
 ## Install
 

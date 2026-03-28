@@ -27,22 +27,41 @@ You do NOT write code — you plan.
 
 ## Impact Analysis
 - Services affected: [list with paths]
-- Dependency order: [order to implement]
 - Breaking change: yes/no
 - Contract version bump: minor/major
+- Independent change (no cross-service data flow): yes/no
+
+## Dependency Tiers
+Tier 0 (parallel): [services with no deps on other affected services]
+Tier 1 (parallel): [services depending only on tier 0]
+Tier 2 (parallel): [services depending only on tier 0-1]
+...
+
+If this is an independent change (e.g., adding middleware to all services),
+mark ALL services as Tier 0 — they all run in parallel.
 
 ## File Map
-| Service | File | Line | Change |
-|---------|------|------|--------|
-| auth | app.py:15 | Add field X |
+| Service | Tier | File | Line | Change |
+|---------|------|------|------|--------|
+| auth | 0 | app.py:15 | Add field X |
 
-## Steps (in dependency order)
+## Steps (grouped by tier)
 
-### Step 1: [service] — [summary]
-**Files:** `services/[service]/app.py`
+### Tier 0 (parallel)
+
+#### [service-a] — [summary]
+**Files:** `services/[service-a]/app.py`
 **Changes:** [specific edits]
-**Verify:** `grep -c "new_field" services/[service]/app.py` returns >= N
-**Commit:** "[service]: [description]"
+**Verify:** `grep -c "new_field" services/[service-a]/app.py` returns >= N
+**Commit:** "[service-a]: [description]"
+
+#### [service-b] — [summary]
+(runs in parallel with service-a)
+
+### Tier 1 (parallel, after tier 0 completes)
+
+#### [service-c] — [summary]
+...
 
 ## Verification Checklist
 - [ ] `grep -r "old_name" services/` returns 0 results

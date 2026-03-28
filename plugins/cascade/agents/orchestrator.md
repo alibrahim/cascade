@@ -32,21 +32,75 @@ You have 4 subagents:
 - **cascade-contracts** — Updates API contracts after each service change
 - **cascade-verifier** — Checks cross-service consistency
 
+## Parallel Execution (Dependency Tiers)
+
+Group services into dependency tiers. Services within the same tier have no dependencies
+on each other and MUST be run in parallel for speed.
+
+### How to compute tiers
+
+```
+Tier 0: Services with no dependencies (run all in parallel)
+Tier 1: Services whose dependencies are ALL in tier 0 (run all in parallel)
+Tier 2: Services whose dependencies are ALL in tier 0 or 1 (run all in parallel)
+...continue until all services are assigned
+```
+
+### Example
+
+```
+cascade.yaml:
+  auth-service:     depends_on: []
+  catalog-service:  depends_on: [auth-service]
+  order-service:    depends_on: [auth-service, catalog-service]
+  notification-svc: depends_on: [auth-service, order-service]
+  gateway-api:      depends_on: [auth-service, catalog-service, order-service, notification-svc]
+  dashboard-ui:     depends_on: [gateway-api]
+
+Tiers:
+  Tier 0: [auth-service]                          ← 1 service
+  Tier 1: [catalog-service]                        ← 1 service
+  Tier 2: [order-service]                          ← 1 service
+  Tier 3: [notification-svc]                       ← 1 service
+  Tier 4: [gateway-api]                            ← 1 service
+  Tier 5: [dashboard-ui]                           ← 1 service
+```
+
+But with a flatter dependency graph:
+```
+  Tier 0: [auth-service, payments-service]    ← 2 in PARALLEL
+  Tier 1: [catalog-service, users-service]    ← 2 in PARALLEL
+  Tier 2: [order-service]                     ← 1 service
+  Tier 3: [gateway-api, web-ui, sdk]          ← 3 in PARALLEL
+```
+
+### Special case: independent changes
+
+When a change does NOT flow through dependencies (e.g., "add rate limiting headers to all
+services"), ALL services can run in parallel regardless of tiers — because the change to
+each service is independent. Detect this and parallelize aggressively.
+
 ## Workflow
 
 ```
 1. Delegate to cascade-planner: "Plan this change"
-2. For each service in dependency order:
-   a. Delegate to cascade-worker: "Implement step N for [service]"
-   b. Delegate to cascade-contracts: "Update contracts for [service]"
-3. Delegate to cascade-verifier: "Check everything"
-4. If failures: fix via cascade-worker, re-verify
-5. Update cascade-progress.txt
+2. Read the plan — identify which services are affected
+3. Compute dependency tiers for affected services
+4. For each tier (in order):
+   a. Delegate cascade-worker to ALL services in this tier IN PARALLEL
+   b. After all workers in the tier complete:
+      - Delegate cascade-contracts to update contracts for all changed services
+5. After all tiers complete:
+   - Delegate to cascade-verifier: "Check everything"
+6. If failures: fix via cascade-worker, re-verify
+7. Update cascade-progress.txt
 ```
 
 ## Rules
 
-- Follow dependency order — upstream services first
-- Update contracts AFTER each service, not at the end
+- Services in the SAME tier MUST run in parallel (delegate multiple workers at once)
+- Services in DIFFERENT tiers MUST run sequentially (wait for previous tier to complete)
+- Update contracts AFTER each tier completes, not at the end
+- For independent changes (no cross-service data flow), run ALL services in parallel
 - Never leave the system in an inconsistent state
 - If context runs low, save state to cascade-progress.txt
