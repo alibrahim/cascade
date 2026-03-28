@@ -143,16 +143,19 @@ Cascade is stack-agnostic. It works with any language that has HTTP APIs and tex
 - **Go** — Standard library, Gin, Echo
 - **Mixed stacks** — Python backend + TypeScript frontend? No problem.
 
-## Works With Superpowers
+## Works With Superpowers and gstack
 
-Cascade is complementary to [Superpowers](https://github.com/obra/superpowers):
+Cascade is the multi-service layer that complements single-service tools:
 
-| Tool | Scope | Use for |
-|------|-------|---------|
-| **Superpowers** | Single service | TDD, planning, code review within one repo |
-| **Cascade** | Multi-service | Cross-cutting changes, contract sync, dependency coordination |
+| Tool | What it does | Scope |
+|------|-------------|-------|
+| [**Superpowers**](https://github.com/obra/superpowers) | TDD, planning, code review, debugging | Single service |
+| [**gstack**](https://github.com/garrytan/gstack) | Sprint workflow, CEO/design/QA reviews, shipping | Single service |
+| **Cascade** | Dependency-aware orchestration, contract sync, cross-service verification | Multi-service |
 
-Install both. Superpowers handles "how to write good code." Cascade handles "how to coordinate across services."
+These tools are complementary — they solve different problems at different layers. Superpowers and gstack make your agent better at writing code within one repo. Cascade makes it capable of coordinating changes across repos.
+
+Install any combination. They don't conflict.
 
 ## Commands
 
